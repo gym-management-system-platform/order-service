@@ -1,4 +1,4 @@
-# order-service
+# orderEntity-service
 
 # 1. Цель проекта
 
