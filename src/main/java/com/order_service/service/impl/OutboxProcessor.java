@@ -1,15 +1,11 @@
-package com.order_service.service;
+package com.order_service.service.impl;
 
 
 import com.order_service.entity.OutboxEventEntity;
 import com.order_service.enums.OutboxEventStatus;
 import com.order_service.enums.OutboxEventType;
-import com.order_service.event.OrderCompensatedEvent;
-import com.order_service.event.OrderCreatedEvent;
-import com.order_service.event.OrderProcessingPaymentEvent;
 import com.order_service.repository.OutboxRepository;
-import com.order_service.property.KafkaProperties;
-import com.order_service.serialize.EventSerializer;
+import com.order_service.config.property.KafkaProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -26,10 +22,8 @@ import java.time.Instant;
 public class OutboxProcessor {
 
     private final OutboxRepository outboxRepository;
-    private final KafkaTemplate<String, Object> kafka;
-    private final EventSerializer eventSerializer;
+    private final KafkaTemplate<String, String> kafka;
     private final KafkaProperties kafkaProperties;
-
 
     @Scheduled(fixedDelayString = "${app.outbox.poll-interval-ms}")
     public void process() {
@@ -40,7 +34,13 @@ public class OutboxProcessor {
 
     private Mono<Void> publishEvent(OutboxEventEntity event) {
         try {
-            Object payload = deserialize(event);
+            if (event.getPayload() == null) {
+                return markFailed(event, new IllegalStateException("Outbox payload is null"));
+            }
+            String payload = event.getPayload().asString();
+            if (payload.isBlank()) {
+                return markFailed(event, new IllegalStateException("Outbox payload string is empty"));
+            }
             String topic = resolveTopic(event.getEventType());
             return Mono.fromFuture(
                             kafka.send(topic, payload)
@@ -51,19 +51,6 @@ public class OutboxProcessor {
         } catch (Exception e) {
             return markFailed(event, e);
         }
-    }
-
-    private Object deserialize(OutboxEventEntity event) {
-        if (event.getEventType() == OutboxEventType.OrderCreatedEvent) {
-            return eventSerializer.fromJson(event.getPayload(), OrderCreatedEvent.class);
-        }
-        if (event.getEventType() == OutboxEventType.OrderCompensatedEvent) {
-            return eventSerializer.fromJson(event.getPayload(), OrderCompensatedEvent.class);
-        }
-        if (event.getEventType() == OutboxEventType.OrderProcessingPaymentEvent) {
-            return eventSerializer.fromJson(event.getPayload(), OrderProcessingPaymentEvent.class);
-        }
-        throw new RuntimeException("Unknown event type: " + event.getEventType());
     }
 
     private String resolveTopic(OutboxEventType eventType) {
