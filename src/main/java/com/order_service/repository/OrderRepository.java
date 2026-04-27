@@ -12,7 +12,6 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends ReactiveCrudRepository<OrderEntity, UUID> {
 
-    Mono<OrderEntity> findBySagaId(String sagaId);
+    Mono<OrderEntity> findBySagaId(UUID sagaId);
 
-    Mono<OrderEntity> findByOrderNumber(String orderNumber);
 }

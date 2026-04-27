@@ -61,10 +61,10 @@ logging:
 # Kafka Configuration
 app:
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9391,localhost:9392,localhost:9393}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9391,localhost:9392,localhost:9393}
 
     deserializer:
-      trusted-packages: ${KAFKA_TRUSTED_PACKAGES:*}
+      trusted-packages: "${KAFKA_TRUSTED_PACKAGES:*}"
       use-type-info-headers: ${KAFKA_USE_TYPE_INFO_HEADERS:false}
 
     consumer:

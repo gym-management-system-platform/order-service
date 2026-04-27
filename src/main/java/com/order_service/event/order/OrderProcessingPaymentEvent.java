@@ -1,18 +1,19 @@
 package com.order_service.event.order;
 
 
+import com.order_service.enums.Currency;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+
 import java.math.BigDecimal;
 
 
-import com.order_service.event.payment.PaymentEvent;
-import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-
-
+@Jacksonized
 @Getter
 @SuperBuilder
-public class OrderProcessingPaymentEvent extends PaymentEvent {
+public class OrderProcessingPaymentEvent extends OrderEvent {
 
     private final BigDecimal amount;
-    private final String currency;
+    private final Currency currency;
 }

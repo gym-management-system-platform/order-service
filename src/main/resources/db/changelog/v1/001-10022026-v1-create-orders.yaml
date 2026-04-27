@@ -71,6 +71,6 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: saga_id
-                  type: VARCHAR(100)
+                  type: UUID
                   constraints:
                     nullable: true

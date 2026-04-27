@@ -22,7 +22,7 @@ public interface OrderService {
     /**
      * Компенсация заказа (отмена с причиной)
      */
-    Mono<OrderEntity> compensateOrder(String sagaId, String reason);
+    Mono<OrderEntity> compensateOrder(UUID sagaId, String reason);
 
     /**
      * Начать процесс оплаты после резерва инвентаря
@@ -32,12 +32,12 @@ public interface OrderService {
     /**
      * Завершить заказ (успешная оплата)
      */
-    Mono<OrderEntity> completeOrder(String sagaId);
+    Mono<OrderEntity> completeOrder(UUID sagaId);
 
     /**
      * Отменить заказ после компенсации
      */
-    Mono<OrderEntity> cancelAfterCompensation(String sagaId);
+    Mono<OrderEntity> cancelAfterCompensation(UUID sagaId);
 
     /**
      * Получить заказ по ID
@@ -47,6 +47,6 @@ public interface OrderService {
     /**
      * Найти заказ по sagaId
      */
-    Mono<OrderEntity> findBySagaId(String sagaId);
+    Mono<OrderEntity> findBySagaId(UUID sagaId);
 }
 

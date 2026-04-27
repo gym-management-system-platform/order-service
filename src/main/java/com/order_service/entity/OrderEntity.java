@@ -60,5 +60,5 @@ public class OrderEntity {
     private Instant updatedAt;
 
     @Column("saga_id")
-    private String sagaId;
+    private UUID sagaId;
 }

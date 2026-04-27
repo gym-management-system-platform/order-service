@@ -40,9 +40,9 @@ LOGGING_LEVEL_IO_R2DBC_POSTGRESQL_QUERY: DEBUG
 
 #Kafka
 # Kafka Bootstrap Servers (можно указать несколько через запятую)
-KAFKA_BOOTSTRAP_SERVERS: localhost:9391,localhost:9392,localhost:9393
+KAFKA_BOOTSTRAP_SERVERS: localhost:9092,localhost:9391,localhost:9392,localhost:9393
 
-KAFKA_TRUSTED_PACKAGES: *
+KAFKA_TRUSTED_PACKAGES: '*'
 KAFKA_USE_TYPE_INFO_HEADERS: false
 
 # Kafka Consumer Settings

@@ -2,6 +2,7 @@ package com.order_service.entity;
 
 
 import com.order_service.enums.OutboxAggregateType;
+import com.order_service.enums.OutboxEventStatus;
 import com.order_service.enums.OutboxEventType;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.*;
@@ -29,7 +30,7 @@ public class OutboxEventEntity {
     private OutboxAggregateType aggregateType;
 
     @Column("aggregate_id")
-    private String aggregateId;
+    private UUID aggregateId;
 
     @Column("event_type")
     private OutboxEventType eventType;
@@ -38,10 +39,10 @@ public class OutboxEventEntity {
     private Json payload;
 
     @Column("saga_id")
-    private String sagaId;
+    private UUID sagaId;
 
     @Column("status")
-    private String status;
+    private OutboxEventStatus status;
 
     @CreatedDate
     @Column("created_at")
