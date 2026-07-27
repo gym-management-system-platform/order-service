@@ -16,9 +16,11 @@ public class InventoryReleasedKafkaListener {
     private final OrderKafkaInboundApplicationService orderKafkaInbound;
 
     @KafkaListener(
-            topics = "${app.kafka.topics.inventory-released:inventory-released}",
-            groupId = "order-service-group",
-            containerFactory = "inventoryReleasedKafkaListenerContainerFactory"
+            topics = "${app.kafka.listener.inventory-released.topic}",
+            groupId = "${app.kafka.listener.inventory-released.group-id}",
+            containerFactory = "${app.kafka.listener.inventory-released.container-factory}",
+            batch = "${app.kafka.listener.inventory-released.batch-mode}",
+            concurrency = "${app.kafka.listener.inventory-released.concurrency}"
     )
     public void handle(InventoryReleasedEvent event, Acknowledgment ack) {
         if (event == null) {

@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 
 @Component
@@ -18,20 +21,23 @@ public class InventoryEventsKafkaListener {
     private final OrderKafkaInboundApplicationService orderKafkaInbound;
 
     @KafkaListener(
-            topics = "${app.kafka.topics.inventory-events:inventory-events}",
-            groupId = "order-service-group",
-            containerFactory = "inventoryEventsKafkaListenerContainerFactory"
+            topics = "${app.kafka.listener.inventory-events.topic}",
+            groupId = "${app.kafka.listener.inventory-events.group-id}",
+            containerFactory = "${app.kafka.listener.inventory-events.container-factory}",
+            batch = "${app.kafka.listener.inventory-events.batch-mode}",
+            concurrency = "${app.kafka.listener.inventory-events.concurrency}"
     )
-    public void handle(InventoryEvent event, Acknowledgment ack) {
-        if (event == null) {
+    public void handle(List<InventoryEvent> events, Acknowledgment ack) {
+        if (events == null || events.isEmpty()) {
             ack.acknowledge();
             return;
         }
-        orderKafkaInbound.onInventoryEvent(event)
+        Flux.fromIterable(events)
+                .concatMap(orderKafkaInbound::onInventoryEvent)
                 .doFinally(signalType -> ack.acknowledge())
                 .subscribe(
-                        v -> log.debug("Обработано событие инвентаря, sagaId={}", event.getSagaId()),
-                        error -> log.error("Ошибка обработки события инвентаря, sagaId={}", event.getSagaId(), error)
+                        v -> log.debug("Обработан batch inventory-events, size={}", events.size()),
+                        error -> log.error("Ошибка batch inventory-events, size={}", events.size(), error)
                 );
     }
 }

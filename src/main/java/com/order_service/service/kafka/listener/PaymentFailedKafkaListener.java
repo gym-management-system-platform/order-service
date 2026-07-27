@@ -16,9 +16,11 @@ public class PaymentFailedKafkaListener {
     private final OrderKafkaInboundApplicationService orderKafkaInbound;
 
     @KafkaListener(
-            topics = "${app.kafka.topics.payment-failed:payment-failed}",
-            groupId = "order-service-group",
-            containerFactory = "paymentFailedKafkaListenerContainerFactory"
+            topics = "${app.kafka.listener.payment-failed.topic}",
+            groupId = "${app.kafka.listener.payment-failed.group-id}",
+            containerFactory = "${app.kafka.listener.payment-failed.container-factory}",
+            batch = "${app.kafka.listener.payment-failed.batch-mode}",
+            concurrency = "${app.kafka.listener.payment-failed.concurrency}"
     )
     public void handle(PaymentFailedEvent event, Acknowledgment ack) {
         if (event == null) {

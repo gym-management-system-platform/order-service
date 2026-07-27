@@ -30,12 +30,18 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, InventoryEvent> inventoryEventsKafkaListenerContainerFactory() {
-        return listenerFactoryBuilder.json(InventoryEvent.class);
+        ConcurrentKafkaListenerContainerFactory<String, InventoryEvent> factory =
+                listenerFactoryBuilder.json(InventoryEvent.class);
+        factory.setBatchListener(true);
+        return factory;
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, PaymentSucceededEvent> paymentSucceededKafkaListenerContainerFactory() {
-        return listenerFactoryBuilder.json(PaymentSucceededEvent.class);
+        ConcurrentKafkaListenerContainerFactory<String, PaymentSucceededEvent> factory =
+                listenerFactoryBuilder.json(PaymentSucceededEvent.class);
+        factory.setBatchListener(true);
+        return factory;
     }
 
     @Bean

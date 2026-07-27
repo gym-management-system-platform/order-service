@@ -8,7 +8,6 @@ spring:
   profiles:
     active: ${SPRING_PROFILE:dev}
 
-  # Реактивная конфигурация БД
   r2dbc:
     url: r2dbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
@@ -19,7 +18,6 @@ spring:
       max-idle-time: ${R2DBC_POOL_MAX_IDLE_TIME:30m}
       validation-query: ${R2DBC_POOL_VALIDATION_QUERY:SELECT 1}
 
-  # Конфигурация для Liquibase (через JDBC)
   liquibase:
     url: ${LIQUIBASE_URL:jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}}
     user: ${LIQUIBASE_USER:${POSTGRES_USER}}
@@ -27,7 +25,6 @@ spring:
     change-log: ${SPRING_LIQUIBASE_CHANGELOG:classpath:db/changelog/main-changelog.yaml}
     enabled: true
 
-  # Инициализация SQL для реактивного подключения
   sql:
     init:
       mode: ${SPRING_SQL_INIT_MODE:always}
@@ -58,17 +55,16 @@ logging:
     org.springframework.kafka: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_KAFKA:OFF}
     reactor.kafka: ${LOGGING_LEVEL_REACTOR_KAFKA:OFF}
 
-# Kafka Configuration
 app:
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9391,localhost:9392,localhost:9393}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
     deserializer:
       trusted-packages: "${KAFKA_TRUSTED_PACKAGES:*}"
       use-type-info-headers: ${KAFKA_USE_TYPE_INFO_HEADERS:false}
 
     consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP_ID:account-processing-group}
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:10}
       session-timeout: ${KAFKA_CONSUMER_SESSION_TIMEOUT:10000}
       heartbeat-interval: ${KAFKA_CONSUMER_HEARTBEAT_INTERVAL:3000}
@@ -88,19 +84,47 @@ app:
       concurrency: ${KAFKA_CONCURRENCY:1}
       micrometer-enabled: ${KAFKA_MICROMETER_ENABLED:true}
 
+      inventory-events:
+        topic: ${KAFKA_LISTENER_INVENTORY_EVENTS_TOPIC:${KAFKA_TOPIC_INVENTORY_EVENTS}}
+        group-id: ${KAFKA_LISTENER_INVENTORY_EVENTS_GROUP_ID:${KAFKA_CONSUMER_GROUP_ID}}
+        batch-mode: ${KAFKA_LISTENER_INVENTORY_EVENTS_BATCH_MODE:true}
+        concurrency: ${KAFKA_LISTENER_INVENTORY_EVENTS_CONCURRENCY:1}
+        container-factory: ${KAFKA_LISTENER_INVENTORY_EVENTS_CONTAINER_FACTORY:inventoryEventsKafkaListenerContainerFactory}
+
+      inventory-released:
+        topic: ${KAFKA_LISTENER_INVENTORY_RELEASED_TOPIC:${KAFKA_TOPIC_INVENTORY_RELEASED}}
+        group-id: ${KAFKA_LISTENER_INVENTORY_RELEASED_GROUP_ID:${KAFKA_CONSUMER_GROUP_ID}}
+        batch-mode: ${KAFKA_LISTENER_INVENTORY_RELEASED_BATCH_MODE:false}
+        concurrency: ${KAFKA_LISTENER_INVENTORY_RELEASED_CONCURRENCY:1}
+        container-factory: ${KAFKA_LISTENER_INVENTORY_RELEASED_CONTAINER_FACTORY:inventoryReleasedKafkaListenerContainerFactory}
+
+      payment-failed:
+        topic: ${KAFKA_LISTENER_PAYMENT_FAILED_TOPIC:${KAFKA_TOPIC_PAYMENT_FAILED}}
+        group-id: ${KAFKA_LISTENER_PAYMENT_FAILED_GROUP_ID:${KAFKA_CONSUMER_GROUP_ID}}
+        batch-mode: ${KAFKA_LISTENER_PAYMENT_FAILED_BATCH_MODE:false}
+        concurrency: ${KAFKA_LISTENER_PAYMENT_FAILED_CONCURRENCY:1}
+        container-factory: ${KAFKA_LISTENER_PAYMENT_FAILED_CONTAINER_FACTORY:paymentFailedKafkaListenerContainerFactory}
+
+      payment-succeeded:
+        topic: ${KAFKA_LISTENER_PAYMENT_SUCCEEDED_TOPIC:${KAFKA_TOPIC_PAYMENT_SUCCEEDED}}
+        group-id: ${KAFKA_LISTENER_PAYMENT_SUCCEEDED_GROUP_ID:${KAFKA_CONSUMER_GROUP_ID}}
+        batch-mode: ${KAFKA_LISTENER_PAYMENT_SUCCEEDED_BATCH_MODE:true}
+        concurrency: ${KAFKA_LISTENER_PAYMENT_SUCCEEDED_CONCURRENCY:1}
+        container-factory: ${KAFKA_LISTENER_PAYMENT_SUCCEEDED_CONTAINER_FACTORY:paymentSucceededKafkaListenerContainerFactory}
+
     error:
       retry:
         backoff-ms: ${KAFKA_ERROR_BACKOFF_MS:1000}
         max-attempts: ${KAFKA_ERROR_MAX_ATTEMPTS:3}
 
     topics:
-      order-created: ${KAFKA_TOPIC_ORDER_CREATED:order-created}
-      order-compensated: ${KAFKA_TOPIC_ORDER_COMPENSATED:order-compensated}
-      order-processing-payment: ${KAFKA_TOPIC_ORDER_PROCESSING_PAYMENT:order-processing-payment}
-      inventory-events: ${KAFKA_TOPIC_INVENTORY_EVENTS:inventory-events}
-      inventory-released: ${KAFKA_TOPIC_INVENTORY_RELEASED:inventory-released}
-      payment-succeeded: ${KAFKA_TOPIC_PAYMENT_SUCCEEDED:payment-succeeded}
-      payment-failed: ${KAFKA_TOPIC_PAYMENT_FAILED:payment-failed}
+      order-created: ${KAFKA_TOPIC_ORDER_CREATED}
+      order-compensated: ${KAFKA_TOPIC_ORDER_COMPENSATED}
+      order-processing-payment: ${KAFKA_TOPIC_ORDER_PROCESSING_PAYMENT}
+      inventory-events: ${KAFKA_TOPIC_INVENTORY_EVENTS}
+      inventory-released: ${KAFKA_TOPIC_INVENTORY_RELEASED}
+      payment-succeeded: ${KAFKA_TOPIC_PAYMENT_SUCCEEDED}
+      payment-failed: ${KAFKA_TOPIC_PAYMENT_FAILED}
 
   outbox:
     poll-interval-ms: ${OUTBOX_POLL_INTERVAL_MS:1000}
